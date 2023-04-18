@@ -18,19 +18,44 @@ typedef struct bitwriter_s {
 
 } bitwriter_t;
 
+typedef struct bitreader_s {
+    u8* data;
+    u32 len;
+
+    u64 v;   // bit buffer
+    u32 n;   // available bits
+
+} bitreader_t;
+
 typedef struct float_encoder_s {
-        bitwriter_t w;
+    bitwriter_t w;
 
-        u64 val;
+    u64 val;
 
-        u64 leading;
-        u64 trailing;
+    u64 leading;
+    u64 trailing;
 
-        bool first;
-        bool finished;
+    bool first;
+    bool finished;
 } float_encoder_t;
+
+typedef struct float_decoder_s  {
+    u64 val;
+
+    u64 leading;
+    u64 trailing;
+
+    bitreader_t br;
+    u8  b[1024];
+
+    bool first;
+    bool finished;
+    int err;
+} float_decoder_t;
 
 int float_encoder_init(float_encoder_t* s);
 int float_encode_write(float_encoder_t* s, f64 v);
-int float_encode_flush(float_encoder_t* s);
+int float_encode_flush(float_encoder_t* s, u8* dst, u32* len);
 int float_cache_print(float_encoder_t* s);
+int float_decode_block(float_decoder_t* s,u8* data, u32 len, f64* res, u32* res_len);
+
